@@ -1,0 +1,159 @@
+html {
+	background: rgb(41, 50, 65);
+	background-attachment: fixed;
+	background: linear-gradient(180deg, rgba(41, 50, 65, 1) 0%, rgba(152, 193, 217, 1) 100%);
+	color: #e0fbfc;
+	height: 100%;
+}
+
+header {
+	font-family: 'Barlow', sans-serif;
+	font-size: 50px;
+	font-weight: 700;
+	padding: 30px;
+	align-content: center;
+	justify-content: center;
+	display: flex;
+}
+
+main {
+	font-family: 'Barlow', sans-serif;
+	font-size: 30px;
+	font-weight: 200;
+}
+
+#actionLine1 {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+
+#urlText {
+	font-family: 'Barlow', sans-serif;
+	font-size: 30px;
+	width: 60%;
+	min-width: 300px;
+	height: 5px;
+	padding: 30px;
+	border-radius: 25px;
+	border: 1px solid #236;
+	border-color: rgba(0, 0, 0, .15);
+	box-shadow: 10px 10px 10px #293241;
+}
+
+#dlButton {
+	width: 100px;
+	height: 70px;
+	margin: 0 10px;
+	border-radius: 25px;
+	background-color: #293241;
+	color: #e0fbfc;
+	box-shadow: 10px 10px 10px #293241;
+}
+
+/* Download notification */
+#dlNotificationBar {
+	display: flex;
+	border-radius: 25px;
+	box-shadow: 10px 10px 10px #293241;
+	justify-content: center;
+	align-content: center;
+	margin: 0 auto;
+	width: 70%;
+	/* height: 15%; */
+	font-size: 20px;
+	color: #e0fbfc;
+	background-color: #ee6c4d;
+	opacity: 1;
+	visibility: hidden;
+	animation: fadeInOut 2s linear;
+	-webkit-animation: fadeInOut 2s linear;
+	-moz-animation: fadeInOut 2s linear;
+	-o-animation: fadeInOut 2s linear;
+	-ms-animation: fadeInOut 2s linear;
+}
+
+@keyframes fadeInOut {
+	0%,
+	100% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+
+/* File Info Section */
+
+#infoSection {
+	display: flex;
+	flex-flow: row wrap;
+	font-family: 'Barlow', sans-serif;
+	width: 80%;
+	max-width: 1000px;
+	justify-content: center;
+	align-content: center;
+	margin: 0 auto;
+}
+
+#infoSection > * {
+	flex: 0 25%;
+	justify-content: space-between;
+	margin-bottom: 3%;
+	margin-left: 3%;
+}
+
+#mediaFile {
+	height: 20%;
+	min-height: 175px;
+	width: 30%;
+	min-width: 300px;
+	border-radius: 10%;
+	box-shadow: 10px 10px 10px #293241;
+	transition: all 0.2s ease-in-out;
+}
+
+#overlay {
+	height: 20%;
+	min-height: 175px;
+	width: 30%;
+	min-width: 300px;
+	border-radius: 10%;
+	background-color: black;
+	overflow: hidden;
+	opacity: 1;
+	z-index: 2;
+	box-shadow: 10px 10px 10px #293241;
+}
+
+#overlay:hover img {
+	transition: all 0.5s ease-in-out;
+	opacity: 0.5;
+}
+
+/* @650px width */
+@media all and (max-width: 650px) {
+	header {
+		font-size: 40px;
+		display: flex;
+		flex-direction: column;
+		text-align: center;
+	}
+	#actionLine1 {
+		height: 200px;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+
+	#urlText {
+		font-size: 20px;
+		min-width: 250px;
+		max-width: 250px;
+	}
+
+	#dlButton {
+		width: 300px;
+		font-size: 25px;
+	}
+}

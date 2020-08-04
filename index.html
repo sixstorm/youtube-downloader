@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+      <title>YT6</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="HandheldFriendly" content="true">
+  </head>
+  <script>
+    // Get MP3s available
+    fetch('/api/files').then(res => res.json()).then(data => {
+
+        // Show list of MP3 on page
+        for (var i=0;i<data.length;i++){
+          const filesRoot = document.getElementById('infoSection');
+          const file = document.createElement('img');
+          const overlay = document.createElement('div')
+          const imageName = data[i].replace('.mp3','');
+          overlay.setAttribute('id', 'overlay');         
+          file.setAttribute('id', 'mediaFile');
+          file.src = `http://localhost:3000/images/${imageName}.jpg`;
+          overlay.append(file);
+          filesRoot.append(overlay);
+          document.body.append(filesRoot);
+        }
+
+      })
+
+    function downloadYT() {
+      // Show downloading notification between textbox and file library
+      document.getElementById('dlNotificationBar').innerHTML = "Downloading video..."
+      document.getElementById('dlNotificationBar').style.visibility = 'visible';
+
+      // Clear text box and send URL to server
+      const text = document.getElementById('urlText').value;
+      text.value = '';
+      console.log('Sending ' + text + ' to API');
+      const data = { url: text};
+      const options = {
+		    method: 'POST',
+		    headers: {
+			  'Content-Type': 'application/json'
+		  },
+		  body: JSON.stringify(data)
+      };
+      
+      fetch('/api', options).then(response => response.json()).then(data => {
+        console.log(data);
+        // Remove download notification
+        console.log('Hiding DL bar');
+        document.getElementById('dlNotificationBar').style.visibility = 'hidden';
+      });
+    }
+  </script>
+  <body>
+    <header>Youtube Downloader</header>
+    <main>
+      <div id='actionLine1'>
+      <input type="text" id="urlText"><button id='dlButton' onclick="downloadYT()">Download</button>
+      </div>
+      <br>
+      <div id='dlNotificationBar'></div>
+      <br>
+      <section id='infoSection'>
+      </section>
+    </main> 
+  </body>
+</html>
