@@ -1,6 +1,7 @@
 html {
 	background: rgb(41, 50, 65);
 	background-attachment: fixed;
+	background-repeat: no-repeat;
 	background: linear-gradient(180deg, rgba(41, 50, 65, 1) 0%, rgba(152, 193, 217, 1) 100%);
 	color: #e0fbfc;
 	height: 100%;

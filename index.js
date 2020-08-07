@@ -70,18 +70,18 @@ app.post('/api', (req, res) => {
 					.image(options)
 					.then(({ filename }) => {
 						console.log('Saved to', filename); // saved to /path/to/dest/photo.jpg
+						// Prepare JSON to send back to client
+						let videoJSON = {
+							title: info.title,
+							fileName: `http://localhost:3000/music/${info.title}.mp3`,
+							thumbnail: `http://localhost:3000/images/${info.title}.jpg`,
+							id: info.id
+						};
+						console.log('Sending back a res');
+						console.log(videoJSON);
+						res.send(videoJSON);
 					})
 					.catch((err) => console.error(err));
-
-				// Prepare JSON to send back to client
-				let videoJSON = {
-					title: info.title,
-					thumbnail: info.thumbnail,
-					id: info.id
-				};
-				console.log('Sending back a res');
-				console.log(videoJSON);
-				res.send(videoJSON);
 			});
 		} catch (error) {
 			console.log(error);
