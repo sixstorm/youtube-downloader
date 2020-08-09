@@ -71,24 +71,23 @@ function downloadYT() {
 	const dlBar = document.getElementById('dlNotificationBar');
 	dlBar.innerHTML = 'Downloading Now...';
 	dlBar.style.visibility = 'visible';
-	// const jsonData = JSON.stringify(data);
 	textbox.value = '';
 
-	// Send URL to Server
+	// Send URL, format and destination to server
 	console.log(`Sending data to API`);
 	const options = {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/JSON'
 		},
-		body: data
+		body: JSON.stringify(data)
 	};
 
 	console.log(data);
 
-	// fetch('/api', options).then((response) => response.json()).then((data) => {
-	// 	console.log(data);
-	// 	dlBar.style.visibility = 'hidden';
-	// 	console.log('Download complete!');
-	// });
+	fetch('/api', options).then((response) => response.json()).then((data) => {
+		// console.log(data);
+		// dlBar.style.visibility = 'hidden';
+		console.log('Download complete!');
+	});
 }
