@@ -133,6 +133,75 @@ main {
 	opacity: 0.5;
 }
 
+/* Radio Buttons */
+label {
+	font-size: 25px;
+}
+
+#choiceSelection {
+	display: flex;
+	width: 50%;
+	height: 20%;
+	justify-content: center;
+	align-content: center;
+	flex-direction: row;
+	flex-wrap: wrap;
+	flex-grow: 2;
+	margin: 0 auto;
+}
+
+#formatOptions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	order: 1;
+	width: 40%;
+}
+
+#destinationOptions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	order: 2;
+	width: 60%;
+}
+
+#mp4radio {
+	width: 50%;
+	order: 1;
+}
+
+#mp4Label {
+	order: 2;
+}
+
+#mp3radio {
+	width: 50%;
+	order: 3;
+}
+
+#mp3Label {
+	order: 4;
+}
+
+#browserDL {
+	width: 50%;
+	order: 1;
+}
+
+#browserDLLabel {
+	order: 2;
+}
+
+#archiveDL {
+	width: 50%;
+	order: 3;
+}
+
+#archiveDLLabel {
+	order: 4;
+}
+
 /* @650px width */
 @media all and (max-width: 650px) {
 	header {
