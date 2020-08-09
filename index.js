@@ -61,7 +61,8 @@ app.post('/api', (req, res) => {
 				const ytURL = 'https://img.youtube.com/vi/';
 				const ytArg = '/maxresdefault.jpg';
 				const ytThumb = ytURL + info.id + ytArg;
-				console.log(`Trying to save ${ytThumb}`);
+				console.log(`Trying to save image ${ytThumb}`);
+				const finalTitle = info.title.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
 				options = {
 					url: ytThumb,
 					dest: `./images/${info.title}.jpg` // will be saved to /path/to/dest/photo.jpg
