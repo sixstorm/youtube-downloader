@@ -31,14 +31,47 @@ function loadLibrary() {
 }
 
 function downloadYT() {
+	// Get user options
+	const mp3Button = document.getElementById('mp3radio');
+	const mp4Button = document.getElementById('mp4radio');
+	const browserDLButton = document.getElementById('browserDL');
+	const archiveDLButton = document.getElementById('archiveDL');
+	const textbox = document.getElementById('urlText');
+	let data;
+
+	// MP3 + Download
+	if (mp3Button.checked && browserDLButton.checked) {
+		console.log('MP3 + Download');
+		data = { url: textbox.value, format: 'mp3', destination: 'browser' };
+		console.log(data);
+	}
+
+	// MP4 + Download
+	if (mp4Button.checked && browserDLButton.checked) {
+		console.log('MP4 + Download');
+		data = { url: textbox.value, format: 'mp4', destination: 'browser' };
+		console.log(data);
+	}
+
+	// MP3 + Archive
+	if (mp3Button.checked && archiveDLButton.checked) {
+		console.log('MP3 + Archive');
+		data = { url: textbox.value, format: 'mp3', destination: 'archive' };
+		console.log(data);
+	}
+
+	// MP4 + Archive
+	if (mp4Button.checked && archiveDLButton.checked) {
+		console.log('MP4 + Archive');
+		data = { url: textbox.value, format: 'mp4', destination: 'archive' };
+		console.log(data);
+	}
+
 	// Show "Downloading Now" notification and clear text box
 	const dlBar = document.getElementById('dlNotificationBar');
 	dlBar.innerHTML = 'Downloading Now...';
 	dlBar.style.visibility = 'visible';
-	const textbox = document.getElementById('urlText');
-	const data = { url: textbox.value };
-	const jsonData = JSON.stringify(data);
-	console.log(jsonData);
+	// const jsonData = JSON.stringify(data);
 	textbox.value = '';
 
 	// Send URL to Server
@@ -48,12 +81,14 @@ function downloadYT() {
 		headers: {
 			'Content-Type': 'application/JSON'
 		},
-		body: jsonData
+		body: data
 	};
 
-	fetch('/api', options).then((response) => response.json()).then((data) => {
-		console.log(data);
-		dlBar.style.visibility = 'hidden';
-		console.log('Download complete!');
-	});
+	console.log(data);
+
+	// fetch('/api', options).then((response) => response.json()).then((data) => {
+	// 	console.log(data);
+	// 	dlBar.style.visibility = 'hidden';
+	// 	console.log('Download complete!');
+	// });
 }
