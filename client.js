@@ -87,7 +87,7 @@ function downloadYT() {
 
 	fetch('/api', options).then((response) => response.json()).then((data) => {
 		// console.log(data);
-		// dlBar.style.visibility = 'hidden';
+		dlBar.style.visibility = 'hidden';
 		console.log('Download complete!');
 	});
 }

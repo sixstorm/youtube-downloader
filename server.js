@@ -16,30 +16,46 @@ app.post('/api', (req, res) => {
 	const url = data.url;
 	const format = data.format;
 	const destination = data.destination;
+	let finalTitle;
+	let video = ytdl(url, { quality: 'highest' });
 
-	async function downloadMP4Video(url) {
-		try {
-			let videoDownload = (url) => {
-				return new Promise((resolve, reject) => {
-					ytdl.getBasicInfo(url).then((info) => {
-						const finalTitle = info.videoDetails.title.replace(
-							/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,
-							''
-						);
-						console.log(`Attempting to download video ${finalTitle}`);
-						// const video = ytdl(url, { filter: format => format.container === 'mp4' })
-						ytdl(url, {
-							filter: (format) => format.container === 'mp4' && format.quality === '1080p'
-						}).pipe(fs.createWriteStream(`${finalTitle}.mp4`));
-						resolve(console.log('Video download complete!'));
-						reject(err);
-					});
-				});
-			};
-		} catch (err) {
-			console.log('Could not download video!');
-			console.log(err);
-		}
+	async function getVideoTitle(video) {
+		return new Promise((resolve, reject) => {
+			video.on('info', (info) => {
+				finalTitle = info.videoDetails.title.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+				console.log(`Attempting to download ${finalTitle}`);
+				resolve(finalTitle);
+			});
+		});
+	}
+
+	async function MP4VideoDownload(video) {
+		finalTitle = await getVideoTitle(video);
+
+		video.on('progress', (chunkLength, downloaded, total) => {
+			const percent = downloaded / total;
+			console.log('Downloading', `${(percent * 100).toFixed(1)}%`);
+		});
+
+		video.on('end', () => {
+			console.log(`Finished downloading ${finalTitle}`);
+		});
+
+		video.pipe(fs.createWriteStream(`${__dirname}/videos/${finalTitle}.mp4`));
+	}
+
+	async function MP3AudioDownload(video) {
+		finalTitle = await getVideoTitle(video);
+		console.log(`Title test: ${finalTitle}`);
+		ffmpeg(video)
+			.audioBitrate(128)
+			.save(`${__dirname}/music/${finalTitle}.mp3`)
+			.on('progress', function(progress) {
+				console.log(`Downloading ${progress.percent}`);
+			})
+			.on('end', (p) => {
+				console.log(`Download and conversion is complete!`);
+			});
 	}
 
 	async function downloadConvertMP3(url) {
@@ -103,14 +119,14 @@ app.post('/api', (req, res) => {
 	}
 
 	// Call function if MP3 + archive
-	if (format == 'mp3') {
-		console.log('Client requested to download MP3');
-		//downloadConvertMP3(url);
+	if (format == 'mp3' && destination == 'archive') {
+		console.log('Client requested to download MP3 to archive');
+		MP3AudioDownload(video);
 	}
 
 	// Call function if MP4 + archive
-	if (format == 'mp4') {
-		console.log('Client requested to download MP4');
-		//downloadMP4Video(url);
+	if (format == 'mp4' && destination == 'archive') {
+		console.log('Client requested to download MP4 to archive');
+		MP4VideoDownload(video);
 	}
 });
