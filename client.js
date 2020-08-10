@@ -43,28 +43,24 @@ function downloadYT() {
 	if (mp3Button.checked && browserDLButton.checked) {
 		console.log('MP3 + Download');
 		data = { url: textbox.value, format: 'mp3', destination: 'browser' };
-		console.log(data);
 	}
 
 	// MP4 + Download
 	if (mp4Button.checked && browserDLButton.checked) {
 		console.log('MP4 + Download');
 		data = { url: textbox.value, format: 'mp4', destination: 'browser' };
-		console.log(data);
 	}
 
 	// MP3 + Archive
 	if (mp3Button.checked && archiveDLButton.checked) {
 		console.log('MP3 + Archive');
 		data = { url: textbox.value, format: 'mp3', destination: 'archive' };
-		console.log(data);
 	}
 
 	// MP4 + Archive
 	if (mp4Button.checked && archiveDLButton.checked) {
 		console.log('MP4 + Archive');
 		data = { url: textbox.value, format: 'mp4', destination: 'archive' };
-		console.log(data);
 	}
 
 	// Show "Downloading Now" notification and clear text box
@@ -83,11 +79,26 @@ function downloadYT() {
 		body: JSON.stringify(data)
 	};
 
-	console.log(data);
-
-	fetch('/api', options).then((response) => response.json()).then((data) => {
-		// console.log(data);
-		dlBar.style.visibility = 'hidden';
-		console.log('Download complete!');
+	fetch('/api', options).then((response) => response.text()).then((data) => {
+		console.log(`Response Data: ${data}`);
+		// If 'Download Here' selected
+		if (data.destination == 'browser') {
+			// Display a download link in the DownloadBar
+			let dlBarArea = document.getElementById('dlNotificationBar');
+			let dlLink = document.createElement('a');
+			let file = `${data}`;
+			dlBarArea.innerHTML = '';
+			dlLink.setAttribute('href', file);
+			dlLink.setAttribute('download', file);
+			dlLink.innerHTML = 'Download File';
+			dlBarArea.append(dlLink);
+		} else {
+			// Display in dlBar that file was saved to archive
+			let dlBarArea = document.getElementById('dlNotificationBar');
+			let dlAlert = document.createElement('p');
+			dlBarArea.innerHTML = '';
+			dlAlert.innerHTML = 'File has been successfully downloaded to the archive!';
+			dlBarArea.append(dlAlert);
+		}
 	});
 }
