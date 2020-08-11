@@ -6,7 +6,7 @@ function loadLibrary() {
 			const infoSection = document.getElementById('infoSection');
 			const imgObject = document.createElement('img');
 			const audioControl = document.createElement('audio');
-			audioControl.setAttribute('src', `http://localhost:3000/music/${data.filename}`);
+			audioControl.setAttribute('src', `https://yt.teamtuck.xyz/music/${data.filename}`);
 			audioControl.setAttribute('id', `${data.filename}`);
 			file.setAttribute('id', 'mediaFile');
 			file.setAttribute('alt', data.filename);
@@ -37,6 +37,9 @@ function downloadYT() {
 	const browserDLButton = document.getElementById('browserDL');
 	const archiveDLButton = document.getElementById('archiveDL');
 	const textbox = document.getElementById('urlText');
+	console.log(
+		`MP3:${mp3Button.checked}, MP4:${mp4Button.checked}, Browser:${browserDLButton}, Archive:${archiveDLButton}`
+	);
 	let data;
 
 	// MP3 + Download
@@ -79,21 +82,23 @@ function downloadYT() {
 		body: JSON.stringify(data)
 	};
 
-	fetch('/api', options).then((response) => response.text()).then((data) => {
+	fetch('/api', options).then((response) => response.json()).then((data) => {
+		// Response data is JSON:  filename and title
 		console.log(`Response Data: ${data}`);
 		// If 'Download Here' selected
-		if (data.destination == 'browser') {
+		if (browserDLButton.checked) {
 			// Display a download link in the DownloadBar
+			console.log('Creating a download link');
 			let dlBarArea = document.getElementById('dlNotificationBar');
 			let dlLink = document.createElement('a');
-			let file = `${data}`;
 			dlBarArea.innerHTML = '';
-			dlLink.setAttribute('href', file);
-			dlLink.setAttribute('download', file);
+			dlLink.setAttribute('href', data.filename);
+			dlLink.setAttribute('download', data.title);
 			dlLink.innerHTML = 'Download File';
 			dlBarArea.append(dlLink);
 		} else {
 			// Display in dlBar that file was saved to archive
+			console.log('Telling user that the file is in the archive');
 			let dlBarArea = document.getElementById('dlNotificationBar');
 			let dlAlert = document.createElement('p');
 			dlBarArea.innerHTML = '';

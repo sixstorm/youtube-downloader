@@ -1,14 +1,28 @@
+:root {
+	--gunmetal: #293241;
+	--burntsienna: #ee6c4d;
+	--lightcyan: #e0fbfc;
+	--palecrulean: #98c1d9;
+	--bedazzleblue: #3d5a80;
+	--shadowFont: 'Oxygen', sans-serif;
+	--sandybrown: #f4a261;
+	--oycrayola: #e9c46a;
+	--persiangreen: #2a9d8f;
+	--charcoal: #264653;
+}
+
 html {
 	background: rgb(41, 50, 65);
 	background-attachment: fixed;
 	background-repeat: no-repeat;
-	background: linear-gradient(180deg, rgba(41, 50, 65, 1) 0%, rgba(152, 193, 217, 1) 100%);
-	color: #e0fbfc;
+	background-color: var(--palecrulean);
+	/* background: linear-gradient(180deg, var(--persiangreen) 0%, var(--sandybrown) 100%); */
+	color: var(--gunmetal);
 	height: 100%;
 }
 
 header {
-	font-family: 'Barlow', sans-serif;
+	font-family: var(--shadowFont);
 	font-size: 50px;
 	font-weight: 700;
 	padding: 30px;
@@ -18,7 +32,7 @@ header {
 }
 
 main {
-	font-family: 'Barlow', sans-serif;
+	font-family: var(--shadowFont);
 	font-size: 30px;
 	font-weight: 200;
 }
@@ -31,7 +45,7 @@ main {
 }
 
 #urlText {
-	font-family: 'Barlow', sans-serif;
+	font-family: var(--shadowFont);
 	font-size: 30px;
 	width: 60%;
 	min-width: 300px;
@@ -39,33 +53,35 @@ main {
 	padding: 30px;
 	border-radius: 25px;
 	border: 1px solid #236;
-	border-color: rgba(0, 0, 0, .15);
-	box-shadow: 10px 10px 10px #293241;
+	border-color: var(--gunmetal);
+	box-shadow: 10px 10px 10px var(--gunmetal);
 }
 
 #dlButton {
+	font-family: var(--shadowFont);
+	font-size: 15px;
 	width: 100px;
 	height: 70px;
 	margin: 0 10px;
 	border-radius: 25px;
 	background-color: #293241;
-	color: #e0fbfc;
-	box-shadow: 10px 10px 10px #293241;
+	color: var(--lightcyan);
+	box-shadow: 10px 10px 10px var(--gunmetal);
 }
 
 /* Download notification */
 #dlNotificationBar {
 	display: flex;
 	border-radius: 25px;
-	box-shadow: 10px 10px 10px #293241;
+	box-shadow: 10px 10px 10px var(--gunmetal);
 	justify-content: center;
 	align-content: center;
 	margin: 0 auto;
 	width: 70%;
 	/* height: 15%; */
 	font-size: 20px;
-	color: #e0fbfc;
-	background-color: #ee6c4d;
+	color: var(--gunmetal);
+	background-color: var(--burntsienna);
 	opacity: 1;
 	visibility: hidden;
 	animation: fadeInOut 2s linear;
@@ -111,7 +127,7 @@ main {
 	width: 30%;
 	min-width: 300px;
 	border-radius: 10%;
-	box-shadow: 10px 10px 10px #293241;
+	box-shadow: 10px 10px 10px var(--gunmetal);
 	transition: all 0.2s ease-in-out;
 }
 
@@ -125,7 +141,7 @@ main {
 	overflow: hidden;
 	opacity: 1;
 	z-index: 2;
-	box-shadow: 10px 10px 10px #293241;
+	box-shadow: 10px 10px 10px var(--gunmetal);
 }
 
 #overlay:hover img {
@@ -250,7 +266,6 @@ label {
 	#choiceSelection {
 		flex-direction: column;
 		flex-wrap: wrap;
-		flex: 1 0 20%;
 		justify-content: center;
 		align-content: center;
 	}

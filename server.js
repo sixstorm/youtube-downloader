@@ -23,14 +23,15 @@ app.post('/api', (req, res) => {
 	async function getVideoTitle(video) {
 		return new Promise((resolve, reject) => {
 			video.on('info', (info) => {
-				finalTitle = info.videoDetails.title.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+				finalTitle = info.videoDetails.title.replace(/[`~!@#$%^*()_|+\=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+				finalTitle = finalTitle.replace(/  +/g, ' ');
 				console.log(`Attempting to download ${finalTitle}`);
 				resolve(finalTitle);
 			});
 		});
 	}
 
-	async function MP4VideoDownload(video) {
+	async function MP4VideoDownloadToArchive(video, dest) {
 		try {
 			finalTitle = await getVideoTitle(video);
 
@@ -42,28 +43,22 @@ app.post('/api', (req, res) => {
 
 			video.on('end', () => {
 				console.log(`Finished downloading ${finalTitle}`);
-				// Display in dlBar that file was saved to archive
-				// let dlBarArea = document.getElementById('dlNotificationBar');
-				// let dlLink = document.createElement('a');
-				// let file = `http://localhost:3000/videos/${finalTitle}.mp4`;
-				// dlLink.setAttribute('href', file);
-				// dlLink.setAttribute('download', file);
-				// dlBarArea.append(dlLink);
 				res.send('Download complete!');
 			});
 
-			video.pipe(fs.createWriteStream(`${__dirname}/videos/${finalTitle}.mp4`));
+			video.pipe(fs.createWriteStream(`${__dirname}/${dest}/${finalTitle}.mp4`));
 		} catch (error) {
 			console.log('Failed to download MP4 video');
 		}
 	}
 
-	async function MP3AudioDownload(video) {
+	async function MP3AudioDownloadToArchive(video, dest) {
 		try {
 			finalTitle = await getVideoTitle(video);
-			ffmpeg(video).audioBitrate(128).save(`${__dirname}/music/${finalTitle}.mp3`).on('end', (p) => {
+			ffmpeg(video).audioBitrate(128).save(`${__dirname}/${dest}/${finalTitle}.mp3`).on('end', (p) => {
 				console.log(`Download and conversion is complete!`);
-				res.send(`http://localhost:3000/music/${finalTitle}.mp3`);
+				let data = { filename: `https://yt.teamtuck.xyz/${dest}/${finalTitle}.mp3`, title: `${finalTitle}` };
+				res.send(JSON.stringify(data));
 			});
 		} catch (error) {
 			console.log('Failed to download MP3 audio');
@@ -133,12 +128,28 @@ app.post('/api', (req, res) => {
 	// Call function if MP3 + archive
 	if (format == 'mp3' && destination == 'archive') {
 		console.log('Client requested to download MP3 to archive');
-		MP3AudioDownload(video);
+		let dest = 'music';
+		MP3AudioDownloadToArchive(video, dest);
 	}
 
 	// Call function if MP4 + archive
 	if (format == 'mp4' && destination == 'archive') {
 		console.log('Client requested to download MP4 to archive');
-		MP4VideoDownload(video);
+		let dest = 'videos';
+		MP4VideoDownloadToArchive(video);
+	}
+
+	// Call function if MP3 + download
+	if (format == 'mp3' && destination == 'browser') {
+		console.log('Client requested to download MP3 to temp/browser');
+		let dest = 'temp';
+		MP3AudioDownloadToArchive(video, dest);
+	}
+
+	// Call function if MP4 + download
+	if (format == 'mp4' && destination == 'browser') {
+		console.log('Client requested to download MP3 to temp/browser');
+		let dest = 'temp';
+		MP4VideoDownloadToArchive(video, dest);
 	}
 });
