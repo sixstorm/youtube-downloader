@@ -36,7 +36,6 @@ app.post('/api', (req, res) => {
 			finalTitle = await getVideoTitle(video);
 
 			video.on('progress', (chunkLength, downloaded, total) => {
-				console.log(`${chunkLength},${downloaded},${total}`);
 				const percent = downloaded / total;
 				console.log('Downloading', `${(percent * 100).toFixed(1)}%`);
 			});
@@ -136,7 +135,7 @@ app.post('/api', (req, res) => {
 	if (format == 'mp4' && destination == 'archive') {
 		console.log('Client requested to download MP4 to archive');
 		let dest = 'videos';
-		MP4VideoDownloadToArchive(video);
+		MP4VideoDownloadToArchive(video, dest);
 	}
 
 	// Call function if MP3 + download

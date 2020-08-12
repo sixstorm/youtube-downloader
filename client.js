@@ -31,15 +31,12 @@ function loadLibrary() {
 }
 
 function downloadYT() {
-	// Get user options
+	// Get user options and disable the download button until download is complete
 	const mp3Button = document.getElementById('mp3radio');
 	const mp4Button = document.getElementById('mp4radio');
 	const browserDLButton = document.getElementById('browserDL');
 	const archiveDLButton = document.getElementById('archiveDL');
 	const textbox = document.getElementById('urlText');
-	console.log(
-		`MP3:${mp3Button.checked}, MP4:${mp4Button.checked}, Browser:${browserDLButton}, Archive:${archiveDLButton}`
-	);
 	let data;
 
 	// MP3 + Download
@@ -68,6 +65,8 @@ function downloadYT() {
 
 	// Show "Downloading Now" notification and clear text box
 	const dlBar = document.getElementById('dlNotificationBar');
+	const dlButton = document.getElementById('dlButton');
+	dlButton.disabled = true;
 	dlBar.innerHTML = 'Downloading Now...';
 	dlBar.style.visibility = 'visible';
 	textbox.value = '';
@@ -86,7 +85,7 @@ function downloadYT() {
 		// Response data is JSON:  filename and title
 		console.log(`Response Data: ${data}`);
 		// If 'Download Here' selected
-		if (browserDLButton.checked) {
+		if (document.getElementById('browserDL').checked) {
 			// Display a download link in the DownloadBar
 			console.log('Creating a download link');
 			let dlBarArea = document.getElementById('dlNotificationBar');
@@ -96,14 +95,15 @@ function downloadYT() {
 			dlLink.setAttribute('download', data.title);
 			dlLink.innerHTML = 'Download File';
 			dlBarArea.append(dlLink);
+			dlButton.disabled = false;
 		} else {
 			// Display in dlBar that file was saved to archive
-			console.log('Telling user that the file is in the archive');
 			let dlBarArea = document.getElementById('dlNotificationBar');
 			let dlAlert = document.createElement('p');
 			dlBarArea.innerHTML = '';
 			dlAlert.innerHTML = 'File has been successfully downloaded to the archive!';
 			dlBarArea.append(dlAlert);
+			dlButton.disabled = false;
 		}
 	});
 }

@@ -4,7 +4,6 @@
 	--lightcyan: #e0fbfc;
 	--palecrulean: #98c1d9;
 	--bedazzleblue: #3d5a80;
-	--shadowFont: 'Oxygen', sans-serif;
 	--sandybrown: #f4a261;
 	--oycrayola: #e9c46a;
 	--persiangreen: #2a9d8f;
@@ -22,8 +21,8 @@ html {
 }
 
 header {
-	font-family: var(--shadowFont);
-	font-size: 50px;
+	font-family: 'Permanent Marker', cursive;
+	font-size: 60px;
 	font-weight: 700;
 	padding: 30px;
 	align-content: center;
@@ -32,7 +31,7 @@ header {
 }
 
 main {
-	font-family: var(--shadowFont);
+	font-family: 'Gloria Hallelujah', cursive;
 	font-size: 30px;
 	font-weight: 200;
 }
@@ -45,7 +44,7 @@ main {
 }
 
 #urlText {
-	font-family: var(--shadowFont);
+	font-family: 'Gloria Hallelujah', cursive;
 	font-size: 30px;
 	width: 60%;
 	min-width: 300px;
@@ -58,7 +57,7 @@ main {
 }
 
 #dlButton {
-	font-family: var(--shadowFont);
+	font-family: 'Permanent Marker', cursive;
 	font-size: 15px;
 	width: 100px;
 	height: 70px;
@@ -106,7 +105,7 @@ main {
 #infoSection {
 	display: flex;
 	flex-flow: row wrap;
-	font-family: 'Barlow', sans-serif;
+	font-family: 'Gloria Hallelujah', cursive;
 	width: 80%;
 	max-width: 1000px;
 	justify-content: center;
