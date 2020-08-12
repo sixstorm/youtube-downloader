@@ -4,7 +4,10 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
-const readline = require('readline');
+const datastore = require('nedb');
+
+// Load the database
+const db = new datastore({ filename: 'database.db', autoload: true });
 
 app.listen(3000, () => console.log('Server is online'));
 app.use(express.static('./'));
@@ -18,6 +21,7 @@ app.post('/api', (req, res) => {
 	const destination = data.destination;
 	console.log(`URL: ${url}, Format: ${format}`);
 	let finalTitle;
+	let videoData;
 	let video = ytdl(url, { quality: 'highest' });
 
 	async function getVideoTitle(video) {
@@ -31,9 +35,21 @@ app.post('/api', (req, res) => {
 		});
 	}
 
+	async function getVideoDuration(video) {
+		return new Promise((resolve, reject) => {
+			video.on('info', (info) => {
+				videoLength = info.videoDetails;
+				console.log(`Duration: ${videoLength}`);
+				resolve(videoLength);
+				reject(console.log('Failed to get video duration'));
+			});
+		});
+	}
+
 	async function MP4VideoDownloadToArchive(video, dest) {
 		try {
 			finalTitle = await getVideoTitle(video);
+			//duration = await getVideoDuration(video);
 
 			video.on('progress', (chunkLength, downloaded, total) => {
 				const percent = downloaded / total;
@@ -42,10 +58,16 @@ app.post('/api', (req, res) => {
 
 			video.on('end', () => {
 				console.log(`Finished downloading ${finalTitle}`);
-				res.send('Download complete!');
+				// Log into database
+				let start = Date.now();
+				// videoData = { title: finalTitle, timestamp: start, duration: videoLength };
+				let videoData = { title: finalTitle, timestamp: start, destination: dest, url: url };
+				db.insert(videoData); // Save file to server storage
+				video.pipe(fs.createWriteStream(`${__dirname}/${dest}/${finalTitle}.mp4`));
+				// Send JSON back to client
+				console.log('Sending data back to client');
+				res.send(JSON.stringify(videoData));
 			});
-
-			video.pipe(fs.createWriteStream(`${__dirname}/${dest}/${finalTitle}.mp4`));
 		} catch (error) {
 			console.log('Failed to download MP4 video');
 		}
@@ -53,11 +75,23 @@ app.post('/api', (req, res) => {
 
 	async function MP3AudioDownloadToArchive(video, dest) {
 		try {
+			console.log('Getting final title');
 			finalTitle = await getVideoTitle(video);
+			// console.log('Getting duration');
+			// duration = await getVideoDuration(video);
 			ffmpeg(video).audioBitrate(128).save(`${__dirname}/${dest}/${finalTitle}.mp3`).on('end', (p) => {
 				console.log(`Download and conversion is complete!`);
-				let data = { filename: `https://yt.teamtuck.xyz/${dest}/${finalTitle}.mp3`, title: `${finalTitle}` };
-				res.send(JSON.stringify(data));
+				// Log into database
+				let start = Date.now();
+				//videoData = { title: finalTitle, timestamp: start, duration: videoLength };
+				let videoData = { title: finalTitle, timestamp: start, destination: dest, url: url };
+				//videoData = JSON.stringify(videoData);
+				console.log(`VideoData: ${videoData}`);
+				db.insert(videoData);
+
+				// Send JSON back to client
+				console.log('Sending data back to client');
+				res.send(JSON.stringify(videoData));
 			});
 		} catch (error) {
 			console.log('Failed to download MP3 audio');

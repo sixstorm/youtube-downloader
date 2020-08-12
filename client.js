@@ -83,11 +83,11 @@ function downloadYT() {
 
 	fetch('/api', options).then((response) => response.json()).then((data) => {
 		// Response data is JSON:  filename and title
-		console.log(`Response Data: ${data}`);
 		// If 'Download Here' selected
-		if (document.getElementById('browserDL').checked) {
+		if (data.destination == 'temp') {
 			// Display a download link in the DownloadBar
 			console.log('Creating a download link');
+			data = JSON.stringify(data);
 			let dlBarArea = document.getElementById('dlNotificationBar');
 			let dlLink = document.createElement('a');
 			dlBarArea.innerHTML = '';
@@ -98,6 +98,7 @@ function downloadYT() {
 			dlButton.disabled = false;
 		} else {
 			// Display in dlBar that file was saved to archive
+			console.log('Archive final message');
 			let dlBarArea = document.getElementById('dlNotificationBar');
 			let dlAlert = document.createElement('p');
 			dlBarArea.innerHTML = '';
