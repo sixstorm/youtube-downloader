@@ -5,6 +5,7 @@ const app = express();
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 const datastore = require('nedb');
+const moment = require('moment');
 
 // Load the database
 const db = new datastore({ filename: 'database.db', autoload: true });
@@ -13,6 +14,11 @@ app.listen(3000, () => console.log('Server is online'));
 app.use(express.static('./'));
 app.use(express.json());
 
+// Serve the stats page
+app.get('/stats', (req, res) => {
+	res.sendFile('./stats.html', { root: __dirname });
+});
+
 app.post('/api', (req, res) => {
 	console.log('Received a new video to download');
 	const data = req.body;
@@ -20,8 +26,7 @@ app.post('/api', (req, res) => {
 	const format = data.format;
 	const destination = data.destination;
 	console.log(`URL: ${url}, Format: ${format}`);
-	let finalTitle;
-	let videoData;
+	let finalTitle, videoData, videoAuthor, videoCategory, videoLength;
 	let video = ytdl(url, { quality: 'highest' });
 
 	async function getVideoTitle(video) {
@@ -35,39 +40,36 @@ app.post('/api', (req, res) => {
 		});
 	}
 
-	async function getVideoDuration(video) {
-		return new Promise((resolve, reject) => {
-			video.on('info', (info) => {
-				videoLength = info.videoDetails;
-				console.log(`Duration: ${videoLength}`);
-				resolve(videoLength);
-				reject(console.log('Failed to get video duration'));
-			});
+	async function getVideoDetails(url) {
+		let videoInfoDetails = ytdl.getInfo(ytdl.getURLVideoID(url)).then((info) => {
+			videoTitle = info.videoDetails.title;
+			videoAuthor = info.videoDetails.author.name;
+			videoCategory = info.videoDetails.category;
+			videoLengthMin = (info.videoDetails.lengthSeconds / 60).toFixed(2);
 		});
 	}
 
 	async function MP4VideoDownloadToArchive(video, dest) {
 		try {
 			finalTitle = await getVideoTitle(video);
-			//duration = await getVideoDuration(video);
+			let filename = `https://yt.teamtuck.xyz/${dest}/${finalTitle}.mp4`;
+			let start = Date.now();
 
-			video.on('progress', (chunkLength, downloaded, total) => {
-				const percent = downloaded / total;
-				console.log('Downloading', `${(percent * 100).toFixed(1)}%`);
-			});
+			// Save video to file
+			video.pipe(fs.createWriteStream(`${__dirname}/${dest}/${finalTitle}.mp4`));
 
-			video.on('end', () => {
-				console.log(`Finished downloading ${finalTitle}`);
-				// Log into database
-				let start = Date.now();
-				// videoData = { title: finalTitle, timestamp: start, duration: videoLength };
-				let videoData = { title: finalTitle, timestamp: start, destination: dest, url: url };
-				db.insert(videoData); // Save file to server storage
-				video.pipe(fs.createWriteStream(`${__dirname}/${dest}/${finalTitle}.mp4`));
-				// Send JSON back to client
-				console.log('Sending data back to client');
-				res.send(JSON.stringify(videoData));
-			});
+			// Log into database
+			let videoData = {
+				title: finalTitle,
+				timestamp: start,
+				destination: dest,
+				url: url,
+				filename: filename
+			};
+			db.insert(videoData);
+
+			// Send JSON back to client
+			res.send(JSON.stringify(videoData));
 		} catch (error) {
 			console.log('Failed to download MP4 video');
 		}
@@ -75,88 +77,74 @@ app.post('/api', (req, res) => {
 
 	async function MP3AudioDownloadToArchive(video, dest) {
 		try {
-			console.log('Getting final title');
 			finalTitle = await getVideoTitle(video);
-			// console.log('Getting duration');
-			// duration = await getVideoDuration(video);
-			ffmpeg(video).audioBitrate(128).save(`${__dirname}/${dest}/${finalTitle}.mp3`).on('end', (p) => {
-				console.log(`Download and conversion is complete!`);
-				// Log into database
+			let filename = `${__dirname}/${dest}/${finalTitle}.mp3`;
+			getVideoDetails(url);
+			// Does the file already exist?
+			if (doesVideoExist(filename)) {
+				// If true, respond with existing file data
+				console.log(`${finalTitle}.mp3 already exist, sending info back to client`);
+				let finalFileName = `https://yt.teamtuck.xyz/${dest}/${finalTitle}.mp3`;
 				let start = Date.now();
-				//videoData = { title: finalTitle, timestamp: start, duration: videoLength };
-				let videoData = { title: finalTitle, timestamp: start, destination: dest, url: url };
-				//videoData = JSON.stringify(videoData);
-				console.log(`VideoData: ${videoData}`);
-				db.insert(videoData);
-
-				// Send JSON back to client
+				let videoData = {
+					title: finalTitle,
+					timestamp: start,
+					destination: dest,
+					url: url,
+					filename: finalFileName,
+					author: videoAuthor,
+					category: videoCategory,
+					length: videoLengthMin
+				};
 				console.log('Sending data back to client');
+				console.log(JSON.stringify(videoData));
 				res.send(JSON.stringify(videoData));
-			});
+			} else {
+				// Download and convert
+				ffmpeg(video).audioBitrate(128).save(filename).on('end', (p) => {
+					console.log(`Download and conversion is complete!`);
+					// Log into database
+					let start = Date.now();
+					let finalFileName = `https://yt.teamtuck.xyz/${dest}/${finalTitle}.mp3`;
+					//videoData = { title: finalTitle, timestamp: start, duration: videoLength };
+					let videoData = {
+						title: finalTitle,
+						timestamp: start,
+						destination: dest,
+						url: url,
+						filename: finalFileName,
+						author: videoAuthor,
+						category: videoCategory,
+						length: videoLengthMin
+					};
+					//videoData = JSON.stringify(videoData);
+					console.log(`VideoData: ${videoData}`);
+					db.insert(videoData);
+
+					// Send JSON back to client
+					console.log('Sending data back to client');
+					res.send(JSON.stringify(videoData));
+				});
+			}
 		} catch (error) {
 			console.log('Failed to download MP3 audio');
+			console.log(error);
 		}
 	}
 
-	// async function downloadConvertMP3(url) {
-	// 	try {
-	// 		let videoInfo = (url) => {
-	// 			return new Promise((resolve, reject) => {
-	// 				youtube.getInfo(url, function(err, info) {
-	// 					if (err) reject(err);
-	// 					resolve(info);
-	// 				});
-	// 			});
-	// 		};
-
-	// 		let videoDownload = (url) => {
-	// 			return new Promise((resolve, reject) => {
-	// 				const video = ytdl(url, { quality: 'highestaudio' });
-	// 				ytdl.getBasicInfo(url).then((info) => {
-	// 					const finalTitle = info.videoDetails.title.replace(
-	// 						/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,
-	// 						''
-	// 					);
-	// 					console.log(`Attempting to download video ${finalTitle}`);
-	// 					let start = Date.now();
-	// 					ffmpeg(video)
-	// 						.audioBitrate(128)
-	// 						.save(`${__dirname}/music/${finalTitle}.mp3`)
-	// 						.on('progress', (p) => {
-	// 							readline.cursorTo(process.stdout, 0);
-	// 							process.stdout.write(`${p.targetSize}kb downloaded`);
-	// 						})
-	// 						.on('end', function() {
-	// 							console.log('');
-	// 							console.log('Download and conversion is complete!');
-	// 						});
-	// 					resolve(finalTitle);
-	// 					reject(console.log('Something went wrong in FFMPEG'));
-	// 				});
-	// 			});
-	// 		};
-
-	// 		videoDownload(url);
-
-	// 		await videoInfo(url)
-	// 			.then((info) => {
-	// 				// After getting video information, prepare informationt to send back to client
-	// 				const finalTitle = info.title.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
-	// 				let videoJSON = {
-	// 					title: finalTitle,
-	// 					filename: `http://localhost:3000/music/${info.title}.mp3`,
-	// 					id: info.id
-	// 				};
-	// 				console.log('Sending JSON back to client');
-	// 				console.log(videoJSON);
-	// 				res.send(videoJSON);
-	// 			})
-	// 			.catch((err) => console.error(err));
-	// 	} catch (err) {
-	// 		console.log(err);
-	// 		res.send(JSON.stringify(err));
-	// 	}
-	// }
+	function doesVideoExist(filename) {
+		try {
+			// If file exist
+			console.log(`Looking for ${filename}`);
+			if (fs.existsSync(filename)) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
 
 	// Call function if MP3 + archive
 	if (format == 'mp3' && destination == 'archive') {
@@ -185,4 +173,120 @@ app.post('/api', (req, res) => {
 		let dest = 'temp';
 		MP4VideoDownloadToArchive(video, dest);
 	}
+});
+
+// Stats Data API
+
+app.get('/api/info/lastdownload', (req, res) => {
+	db.find({}).sort({ timestamp: -1 }).limit(1).exec(function(err, docs) {
+		docs.forEach((element) => {
+			element.timestamp = moment(element.timestamp).format('MMMM Do YYYY, h:mm:ss a');
+		});
+
+		// Respond with data
+		res.send(docs);
+	});
+});
+
+app.get('/api/totals/mp3', (req, res) => {
+	console.log('Getting information for MP3 totals');
+	db.find({ filename: /.mp3/ }).exec(function(err, docs) {
+		console.log(`Total MP3s: ${docs.length}`);
+		if (err) {
+			console.log(err);
+		}
+		res.send(docs);
+	});
+});
+
+app.get('/api/totals/mp4', (req, res) => {
+	console.log('Getting information for MP4 totals');
+	db.find({ filename: /.mp4/ }).exec(function(err, docs) {
+		console.log(`Total MP4s: ${docs.length}`);
+		if (err) {
+			console.log(err);
+		}
+		res.send(docs);
+	});
+});
+
+app.get('/api/ltd/lastweek', (req, res) => {
+	// Define last week and create array skeleton
+	let lastWeek = moment().subtract(7, 'days').format('MMMM Do');
+	const lastWeekUnix = moment().subtract(7, 'days').unix();
+	let dateArray = [
+		{
+			date: moment().format('MMMM Do'),
+			count: 0
+		},
+		{
+			date: moment().subtract(1, 'days').format('MMMM Do'),
+			count: 0
+		},
+		{
+			date: moment().subtract(2, 'days').format('MMMM Do'),
+			count: 0
+		},
+		{
+			date: moment().subtract(3, 'days').format('MMMM Do'),
+			count: 0
+		},
+		{
+			date: moment().subtract(4, 'days').format('MMMM Do'),
+			count: 0
+		},
+		{
+			date: moment().subtract(5, 'days').format('MMMM Do'),
+			count: 0
+		},
+		{
+			date: moment().subtract(6, 'days').format('MMMM Do'),
+			count: 0
+		}
+	];
+
+	// Run DB query for things greater than last week
+	// Go through results and tally up by date to the dateArray
+	db.find({ timestamp: { $gt: lastWeekUnix } }).exec(function(err, docs) {
+		for (var i = 0; i < docs.length; i++) {
+			let convertedTS = moment(docs[i].timestamp).format('MMMM Do');
+			for (var j = 0; j < dateArray.length; j++) {
+				if (convertedTS == dateArray[j].date) {
+					dateArray[j].count++;
+				}
+			}
+		}
+
+		// Send back to client via response
+		res.send(dateArray);
+	});
+});
+
+app.get('/api/ltd/popcat', (req, res) => {
+	// DB Query all items and get all categories
+	db.find({ category: { $exists: true } }).exec(function(err, docs) {
+		// Go through results and grab unique categories
+		const catSet = new Set();
+		for (var i = 0; i < docs.length; i++) {
+			catSet.add(docs[i].category);
+		}
+		// Convert set to array
+		catArray = [ ...catSet ];
+
+		// Category Array Skeleton with unique category name and count
+		finalCatArray = [];
+		for (var i = 0; i < catArray.length; i++) {
+			finalCatArray.push({ category: catArray[i], count: 0 });
+		}
+
+		// For each DB query result, find category in finalCatArray and increment
+		for (var i = 0; i < docs.length; i++) {
+			// Find docs.category from finalCatArray and increment
+			foundCat = finalCatArray.find(({ category }) => category === docs[i].category);
+			foundCat.count++;
+		}
+
+		// Send data back to client
+		res.send(finalCatArray);
+	});
 });

@@ -87,7 +87,7 @@ function downloadYT() {
 		if (data.destination == 'temp') {
 			// Display a download link in the DownloadBar
 			console.log('Creating a download link');
-			data = JSON.stringify(data);
+			//data = JSON.stringify(data);
 			let dlBarArea = document.getElementById('dlNotificationBar');
 			let dlLink = document.createElement('a');
 			dlBarArea.innerHTML = '';

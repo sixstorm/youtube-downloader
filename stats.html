@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <title>YT6 Stats</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="statsstyle.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="HandheldFriendly" content="true">
+  </head>
+<script src="statsclient.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha512-s+xg36jbIujB2S2VKfpGmlC3T5V2TF3lY48DX7u2r9XzGzgPsa6wTpOQA7J9iffvdeBN0q9tKzRxVxw1JviZPg==" crossorigin="anonymous"></script>
+<div class="wrapper">
+    <section id='mp3TotalSection'>
+        <h4>Total MP3s</h4>
+    </section>
+    <section id='mp4TotalSection'>
+        <h4>Total MP4s</h4>
+    </section>
+    <section id='lastDownloadSection'><h4>Last Download</h4></section>
+    <br>
+    <section id='downloadHistorySection'>
+        <canvas id='dlHistory'></canvas>
+    </section>
+    <section id='popCategorySection'><h4>Popular Category</h4>
+        <canvas id='popDoughnut'></canvas>
+    </section>
+</div>
+</html>

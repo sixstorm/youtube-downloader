@@ -1,0 +1,151 @@
+:root {
+	--gunmetal: #293241;
+	--burntsienna: #ee6c4d;
+	--lightcyan: #e0fbfc;
+	--palecrulean: #98c1d9;
+	--bedazzleblue: #3d5a80;
+	--sandybrown: #f4a261;
+	--oycrayola: #e9c46a;
+	--persiangreen: #2a9d8f;
+	--charcoal: #264653;
+}
+
+html {
+	background: var(--gunmetal);
+	background-attachment: fixed;
+	background-repeat: no-repeat;
+	background-color: var(--gunmetal);
+	/* background: linear-gradient(180deg, var(--persiangreen) 0%, var(--sandybrown) 100%); */
+	color: var(--lightcyan);
+	height: 100%;
+	font-family: 'Open Sans', sans-serif;
+}
+
+a {
+	color: var(--persiangreen);
+	text-decoration: none;
+}
+
+h4 {
+	font-size: 25px;
+	text-align: center;
+}
+
+/* Desktop Settings */
+
+@media only screen and (min-width: 800px) {
+	.wrapper {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: space-evenly;
+		width: 100%;
+	}
+
+	#mp3TotalSection {
+		display: flex;
+		flex-direction: column;
+		width: 20%;
+		justify-content: center;
+		align-content: center;
+		box-shadow: 5px 5px 5px 5px #202020 inset;
+		border-radius: 10px;
+		margin-bottom: 10px;
+	}
+
+	#mp4TotalSection {
+		display: flex;
+		flex-direction: column;
+		width: 20%;
+		align-content: center;
+		justify-content: center;
+		box-shadow: 5px 5px 5px 5px #202020 inset;
+		border-radius: 10px;
+		margin-bottom: 10px;
+	}
+
+	#fileCount {
+		text-align: center;
+		font-size: 40px;
+		height: 60%;
+	}
+
+	#lastDownloadSection {
+		display: flex;
+		flex-direction: column;
+		width: 40%;
+		box-shadow: 5px 5px 5px 5px #202020 inset;
+		border-radius: 10px;
+		margin-bottom: 10px;
+	}
+
+	#newVideo {
+		width: 100%;
+		text-align: center;
+		align-content: center;
+		justify-content: center;
+		margin: 0 auto;
+	}
+
+	#popCategorySection {
+		width: 35%;
+		margin: 0 auto;
+		box-shadow: 5px 5px 5px 5px #202020 inset;
+		border-radius: 10px;
+	}
+
+	#downloadHistorySection {
+		width: 60%;
+		height: 20%;
+		box-shadow: 5px 5px 5px 5px #202020 inset;
+		border-radius: 10px;
+		padding-bottom: 10px;
+	}
+}
+
+/* Mobile Settings */
+
+@media only screen and (max-device-width: 480px) {
+	h4 {
+		font-size: 35px;
+	}
+
+	.wrapper {
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-content: center;
+		margin: 0 auto;
+	}
+
+	#fileCount {
+		height: 20%;
+		font-size: 60px;
+	}
+
+	#mp3TotalSection {
+		width: 50%;
+		max-height: 10%;
+		margin: 0 auto;
+		margin-bottom: 0;
+	}
+
+	#mp4TotalSection {
+		width: 50%;
+		margin: 0 auto;
+	}
+
+	#lastDownloadSection {
+		width: 100%;
+		min-height: 50%;
+		padding: 2em;
+	}
+
+	#downloadHistorySection {
+		width: 100%;
+	}
+
+	#popCategorySection {
+		width: 100%;
+	}
+}
