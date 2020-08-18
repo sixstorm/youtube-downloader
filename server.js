@@ -26,7 +26,7 @@ app.post('/api', (req, res) => {
 	const format = data.format;
 	const destination = data.destination;
 	console.log(`URL: ${url}, Format: ${format}`);
-	let finalTitle, videoData, videoAuthor, videoCategory, videoLength;
+	let finalTitle, videoData, videoAuthor, videoCategory, videoLength, videoLengthMin, videoID;
 	let video = ytdl(url, { quality: 'highest' });
 
 	async function getVideoTitle(video) {
@@ -46,32 +46,58 @@ app.post('/api', (req, res) => {
 			videoAuthor = info.videoDetails.author.name;
 			videoCategory = info.videoDetails.category;
 			videoLengthMin = (info.videoDetails.lengthSeconds / 60).toFixed(2);
+			videoID = info.videoDetails.videoId;
 		});
 	}
 
 	async function MP4VideoDownloadToArchive(video, dest) {
 		try {
 			finalTitle = await getVideoTitle(video);
-			let filename = `https://yt.teamtuck.xyz/${dest}/${finalTitle}.mp4`;
+			let details = await getVideoDetails(url);
+			let finalFilename = `https://yt.teamtuck.xyz/${dest}/${finalTitle}.mp4`;
+			let filename = `${__dirname}/${dest}/${finalTitle}.mp4`;
 			let start = Date.now();
+			// Check to see if the file exists
+			if (await doesVideoExist(videoID)) {
+				// If true, respond with existing file data
+				console.log(`${finalTitle}.mp4 already exist, sending info back to client`);
+				let videoData = {
+					title: finalTitle,
+					videoID: videoID,
+					timestamp: start,
+					destination: dest,
+					url: url,
+					filename: finalFilename,
+					author: videoAuthor,
+					category: videoCategory,
+					length: videoLengthMin
+				};
+				res.send(JSON.stringify(videoData));
+			} else {
+				// Save video to file
+				console.log(`Video does not exist, downloading now`);
+				video.pipe(fs.createWriteStream(`${__dirname}/${dest}/${finalTitle}.mp4`));
 
-			// Save video to file
-			video.pipe(fs.createWriteStream(`${__dirname}/${dest}/${finalTitle}.mp4`));
+				// Log into database
+				let videoData = {
+					title: finalTitle,
+					videoID: videoID,
+					timestamp: start,
+					destination: dest,
+					url: url,
+					filename: filename,
+					author: videoAuthor,
+					category: videoCategory,
+					length: videoLengthMin
+				};
+				db.insert(videoData);
 
-			// Log into database
-			let videoData = {
-				title: finalTitle,
-				timestamp: start,
-				destination: dest,
-				url: url,
-				filename: filename
-			};
-			db.insert(videoData);
-
-			// Send JSON back to client
-			res.send(JSON.stringify(videoData));
+				// Send JSON back to client
+				res.send(JSON.stringify(videoData));
+			}
 		} catch (error) {
 			console.log('Failed to download MP4 video');
+			console.log(error);
 		}
 	}
 
@@ -79,15 +105,16 @@ app.post('/api', (req, res) => {
 		try {
 			finalTitle = await getVideoTitle(video);
 			let filename = `${__dirname}/${dest}/${finalTitle}.mp3`;
-			getVideoDetails(url);
+			let details = await getVideoDetails(url);
 			// Does the file already exist?
-			if (doesVideoExist(filename)) {
+			if (await doesVideoExist(videoID)) {
 				// If true, respond with existing file data
 				console.log(`${finalTitle}.mp3 already exist, sending info back to client`);
 				let finalFileName = `https://yt.teamtuck.xyz/${dest}/${finalTitle}.mp3`;
 				let start = Date.now();
 				let videoData = {
 					title: finalTitle,
+					videoID: videoID,
 					timestamp: start,
 					destination: dest,
 					url: url,
@@ -101,6 +128,7 @@ app.post('/api', (req, res) => {
 				res.send(JSON.stringify(videoData));
 			} else {
 				// Download and convert
+				console.log(`MP3 does not exist, downloading now`);
 				ffmpeg(video).audioBitrate(128).save(filename).on('end', (p) => {
 					console.log(`Download and conversion is complete!`);
 					// Log into database
@@ -109,6 +137,7 @@ app.post('/api', (req, res) => {
 					//videoData = { title: finalTitle, timestamp: start, duration: videoLength };
 					let videoData = {
 						title: finalTitle,
+						videoID: videoID,
 						timestamp: start,
 						destination: dest,
 						url: url,
@@ -132,19 +161,40 @@ app.post('/api', (req, res) => {
 		}
 	}
 
-	function doesVideoExist(filename) {
-		try {
-			// If file exist
-			console.log(`Looking for ${filename}`);
-			if (fs.existsSync(filename)) {
-				return true;
-			} else {
-				return false;
-			}
-		} catch (error) {
-			console.log(error);
-		}
+	function doesVideoExist(ID) {
+		return new Promise((resolve, reject) => {
+			db.find({ videoID: ID }).exec(function(err, docs) {
+				if (err) {
+					return reject(err);
+				}
+				if (docs.length == 0) {
+					console.log(`ID ${ID} is not found in the database`);
+					return resolve(false);
+				} else {
+					console.log(`ID ${ID} was found in the database`);
+					return resolve(true);
+				}
+			});
+		});
 	}
+
+	// async function doesVideoExist(ID) {
+	// 	try {
+	// 		// Search DB to see if Video ID exist in DB
+	// 		console.log(`Looking for ${ID}`);
+	// 		db.find({ videoID: ID }).exec(function(err, docs) {
+	// 			if (docs.length == 0) {
+	// 				console.log(`ID ${ID} is not found in the database`);
+	// 				return false;
+	// 			} else {
+	// 				console.log(`ID ${ID} was found in the database`);
+	// 				return true;
+	// 			}
+	// 		});
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 	}
+	// }
 
 	// Call function if MP3 + archive
 	if (format == 'mp3' && destination == 'archive') {
