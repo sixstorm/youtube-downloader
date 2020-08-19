@@ -198,24 +198,6 @@ app.post('/api', (req, res) => {
 		});
 	}
 
-	// async function doesVideoExist(ID) {
-	// 	try {
-	// 		// Search DB to see if Video ID exist in DB
-	// 		console.log(`Looking for ${ID}`);
-	// 		db.find({ videoID: ID }).exec(function(err, docs) {
-	// 			if (docs.length == 0) {
-	// 				console.log(`ID ${ID} is not found in the database`);
-	// 				return false;
-	// 			} else {
-	// 				console.log(`ID ${ID} was found in the database`);
-	// 				return true;
-	// 			}
-	// 		});
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 	}
-	// }
-
 	// Call function if MP3 + archive
 	if (format == 'mp3' && destination == 'archive') {
 		console.log('Client requested to download MP3 to archive');
