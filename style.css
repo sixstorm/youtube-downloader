@@ -70,33 +70,28 @@ main {
 
 /* Download notification */
 #dlNotificationBar {
-	display: flex;
 	border-radius: 25px;
 	box-shadow: 10px 10px 10px var(--gunmetal);
-	justify-content: center;
-	align-content: center;
+	text-align: center;
 	margin: 0 auto;
 	width: 70%;
 	/* height: 15%; */
 	font-size: 20px;
 	color: var(--gunmetal);
 	background-color: var(--burntsienna);
-	opacity: 1;
 	visibility: hidden;
-	animation: fadeInOut 2s linear;
-	-webkit-animation: fadeInOut 2s linear;
-	-moz-animation: fadeInOut 2s linear;
-	-o-animation: fadeInOut 2s linear;
-	-ms-animation: fadeInOut 2s linear;
+	animation-name: dlFade;
+	animation-duration: 1s;
 }
 
-@keyframes fadeInOut {
-	0%,
-	100% {
+@keyframes dlFade {
+	0% {
 		opacity: 0;
+		transform: scale(.3);
 	}
-	50% {
+	100% {
 		opacity: 1;
+		transform: scale(1);
 	}
 }
 
@@ -127,24 +122,6 @@ main {
 	border-radius: 10%;
 	box-shadow: 10px 10px 10px var(--gunmetal);
 	transition: all 0.2s ease-in-out;
-}
-
-#overlay {
-	height: 20%;
-	min-height: 175px;
-	width: 30%;
-	min-width: 300px;
-	border-radius: 10%;
-	background-color: black;
-	overflow: hidden;
-	opacity: 1;
-	z-index: 2;
-	box-shadow: 10px 10px 10px var(--gunmetal);
-}
-
-#overlay:hover img {
-	transition: all 0.5s ease-in-out;
-	opacity: 0.5;
 }
 
 /* Radio Buttons */

@@ -74,9 +74,17 @@ app.post('/api', (req, res) => {
 				};
 				res.send(JSON.stringify(videoData));
 			} else {
+				// If dest is 'videos', save to big storage
+				if (dest == 'videos') {
+					console.log(`TRYING TO SEND TO BIG STORAGE!!!`);
+					filename = `\\\\192.168.50.4\\Youtube\\MP4\\${finalTitle}.mp4`;
+					console.log(filename);
+				}
+
 				// Save video to file
 				console.log(`Video does not exist, downloading now`);
-				video.pipe(fs.createWriteStream(`${__dirname}/${dest}/${finalTitle}.mp4`));
+				video.pipe(fs.createWriteStream(filename));
+				//video.pipe(fs.createWriteStream(`${__dirname}/${dest}/${finalTitle}.mp4`));
 
 				// Log into database
 				let videoData = {
@@ -103,11 +111,15 @@ app.post('/api', (req, res) => {
 
 	async function MP3AudioDownloadToArchive(video, dest) {
 		try {
+			// Get video title without special characters
 			finalTitle = await getVideoTitle(video);
 			let filename = `${__dirname}/${dest}/${finalTitle}.mp3`;
+
+			// Get video details
 			let details = await getVideoDetails(url);
-			// Does the file already exist?
-			if (await doesVideoExist(videoID)) {
+
+			// Check to see if file record exists in the database AND if not a direct download
+			if ((await doesVideoExist(videoID)) && dest != 'temp') {
 				// If true, respond with existing file data
 				console.log(`${finalTitle}.mp3 already exist, sending info back to client`);
 				let finalFileName = `https://yt.teamtuck.xyz/${dest}/${finalTitle}.mp3`;
@@ -124,17 +136,25 @@ app.post('/api', (req, res) => {
 					length: videoLengthMin
 				};
 				console.log('Sending data back to client');
-				console.log(JSON.stringify(videoData));
+
+				// Send data back to client
 				res.send(JSON.stringify(videoData));
 			} else {
+				// If dest is 'music', save to big storage
+				if (dest == 'music') {
+					console.log(`TRYING TO SEND TO BIG STORAGE!!!`);
+					filename = `\\\\192.168.50.4\\Youtube\\MP3\\${finalTitle}.mp3`;
+					console.log(filename);
+				}
+
 				// Download and convert
 				console.log(`MP3 does not exist, downloading now`);
 				ffmpeg(video).audioBitrate(128).save(filename).on('end', (p) => {
 					console.log(`Download and conversion is complete!`);
+
 					// Log into database
 					let start = Date.now();
 					let finalFileName = `https://yt.teamtuck.xyz/${dest}/${finalTitle}.mp3`;
-					//videoData = { title: finalTitle, timestamp: start, duration: videoLength };
 					let videoData = {
 						title: finalTitle,
 						videoID: videoID,
@@ -146,8 +166,8 @@ app.post('/api', (req, res) => {
 						category: videoCategory,
 						length: videoLengthMin
 					};
-					//videoData = JSON.stringify(videoData);
-					console.log(`VideoData: ${videoData}`);
+
+					// Insert data into database
 					db.insert(videoData);
 
 					// Send JSON back to client
