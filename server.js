@@ -58,7 +58,7 @@ app.post('/api', (req, res) => {
 			let filename = `${__dirname}/${dest}/${finalTitle}.mp4`;
 			let start = Date.now();
 			// Check to see if the file exists
-			if (await doesVideoExist(videoID)) {
+			if ((await doesVideoExist(videoID)) && dest != 'temp') {
 				// If true, respond with existing file data
 				console.log(`${finalTitle}.mp4 already exist, sending info back to client`);
 				let videoData = {
